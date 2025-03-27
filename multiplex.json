@@ -1,0 +1,65 @@
+{
+    "presets": {},
+    "validations": {
+        "generic_string": {
+            "description": "all types of strings",
+            "args": [
+                "guidellm_target",
+                "guidellm_data",
+                "guidellm_model",
+                "guidellm_tokenizer"
+            ],
+            "vals": ".+"
+        },
+        "integer_ge_zero": {
+            "description": "a whole number >= 0",
+            "args": [
+                "guidellm_max_seconds",
+                "guidellm_max_requests"
+            ],
+            "vals": "[0-9]+"
+        },
+        "boolean": {
+            "description": "True or False",
+            "args": [
+                "guidellm_enable_continuous_refresh"
+            ],
+            "vals": "True|true|False|false"
+        },
+        "data_type": {
+            "description": "Ensure the data type is one of the valid options in guidellm.",
+            "args": [
+                "guidellm_data_type"
+            ],
+            "vals": "emulated|file|transformers"
+        },
+        "rate_type": {
+            "description": "Ensure the rate type is one of the valid options in guidellm.",
+            "args": [
+                "guidellm_rate_type"
+            ],
+            "vals": "sweep|synchronous|throughput|constant|poisson"
+        },
+        "list_of_floats": {
+            "description": "Comma separated list of floating point numbers.",
+            "args": [
+                "guidellm_rate"
+            ],
+            "vals": "(([0-9]+(\\.[0-9])?),)*([0-9]+(\\.[0-9]+)?)"
+        },
+        "output_path": {
+            "description": "The output path is provided as a parameter for completeness, but cannot be changed. This check is present in a few layers.",
+            "args": [
+                "guidellm_output_path"
+            ],
+            "vals": "output.json"
+        },
+        "valid_backends": {
+            "description": "Ensure the backend is one of the valid options.",
+            "args": [
+                "guidellm_backend"
+            ],
+            "vals": "openai_http"
+        }
+    }
+}

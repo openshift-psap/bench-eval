@@ -1,0 +1,240 @@
+#!/usr/bin/env python3
+# -*- mode: python; indent-tabs-mode: nil; python-indent-level: 4 -*-
+# vim: autoindent tabstop=4 shiftwidth=4 expandtab softtabstop=4 filetype=python
+
+import sys
+import json
+from dataclasses import dataclass, is_dataclass, asdict
+from enum import Enum
+from typing import Dict, List, Any, Optional, Tuple
+from functools import reduce
+
+def to_dict(a: Any):
+    if hasattr(a, "to_dict"):
+        return a.to_dict()
+    elif is_dataclass(a):
+        return asdict(a)
+    else:
+        raise TypeError(f"Cannot bring {a} to a dict")
+
+def json_lookup(d: Dict[Any, Any], path: str, delim: str=".") -> Optional[Any]:
+    try:
+        segments = path.split(delim)
+        return reduce(lambda td, seg: td[seg], segments, d)
+    except KeyError:
+        return None
+
+def parse_percentiles(d: Dict[Any, Any], path: str, name_prefix=None) -> Optional[List[Tuple[str, float]]]:
+    if name_prefix is None:
+        name_prefix = path + "_"
+    percentiles_list = json_lookup(d, path)
+    if percentiles_list is None:
+        return None
+    else:
+        return [(name_prefix + k, v) for k, v in d.items()]
+
+"""
+The following enums and dataclasses are datastructures
+to represent various pieces of how Crucible expects to
+find data. These are not specific to bench-llm, but are
+structures to help us model what the output of the
+post-processing needs to look like.
+"""
+
+class MetricClass(Enum):
+    COUNT = "count"
+    THROUGHPUT = "throughput"
+
+@dataclass
+class Desc:
+    metric_class: MetricClass
+    source: str
+    metric_type: str
+
+    def to_dict(self):
+        return {
+                "class": str(self.metric_class.value),
+                "source": self.source,
+                "type": self.metric_type,
+            }
+@dataclass
+class Metric:
+    idx: int
+    desc: Desc
+    names: Dict[str, str]
+
+    def to_dict(self):
+        return {
+                "desc": to_dict(self.desc),
+                "idx": self.idx,
+                "names": self.names,
+            }
+
+@dataclass
+class Period:
+    name: str
+    metric_files: List[str]
+
+    def to_dict(self):
+        return {
+                "name": self.name,
+                "metric-files": self.metric_files,
+            }
+
+@dataclass
+class PostProcess:
+    primary_period: str
+    primary_metric: str
+    benchmark: str
+    periods: List[Period]
+    rickshaw_bench_metric_version: str
+
+    def to_dict(self):
+        return {
+                "primary-period": self.primary_period,
+                "primary-metric": self.primary_metric,
+                "benchmark": self.benchmark,
+                "periods": [to_dict(period) for period in self.periods],
+                "rickshaw-bench-metric": {
+                    "schema": {
+                        "version": self.rickshaw_bench_metric_version
+                    }
+                }
+            }
+
+@dataclass
+class Entry:
+    idx: int
+    start: int
+    end: int
+    value: float
+
+    def __str__(self):
+        return f"{int(self.idx)},{int(self.start)},{int(self.end)},{float(self.value)}"
+
+"""
+Helpers specific to guidellm and bench-llm
+"""
+
+class Phase():
+    name: str
+    metric_data: str # "metric-data-[0-9]+"
+    metrics: Dict[str, Any]
+
+    def __init__(self, name, metric_data, metrics):
+        self.name = name
+        self.metric_data = metric_data
+        self.metrics = metrics
+
+    def process(self):
+        csv_path = self.metric_data + ".csv"
+        json_path = self.metric_data + ".json"
+
+        # we have timestamp in seconds, need ms
+        start_time = int(float(self.metrics["start_time"])) * 1000
+        end_time = int(float(self.metrics["end_time"])) * 1000
+
+        locations = [
+            ("request_count", MetricClass.COUNT),
+            ("error_count", MetricClass.COUNT),
+            ("total_count", MetricClass.COUNT),
+            ("duration", MetricClass.COUNT),
+            ("completed_request_rate", MetricClass.THROUGHPUT),
+            ("request_latency", MetricClass.COUNT),
+            ("time_to_first_token", MetricClass.COUNT),
+            ("inter_token_latency", MetricClass.COUNT),
+            ("output_token_throughput", MetricClass.THROUGHPUT),
+            ("prompt_token", MetricClass.COUNT),
+            ("output_token", MetricClass.COUNT),
+        ]
+
+        metrics: List[Metric] = []
+        metric_idx = 0
+        metric_idx_map = {}
+        for location in locations:
+            metric_name = self.safe_name(location[0])
+            metric = Metric(metric_idx, Desc(location[1], "llm", metric_name), {})
+            metric_idx_map[location[0]] = metric_idx
+            metrics.append(metric)
+            metric_idx += 1
+
+        with open(json_path, "w") as f:
+            f.write(json.dumps([to_dict(metric) for metric in metrics]))
+
+        entries: List[Entry] = []
+        for location in locations:
+            idx = metric_idx_map[location[0]]
+            string_value = json_lookup(self.metrics, location[0])
+            if string_value is None:
+                print(f"WARNING: no field {location[0]} in guidellm output")
+                continue
+            float_value = 0.0
+            try:
+                float_value = float(string_value)
+            except ValueError:
+                print(f"WARNING: cannot convert {location[0]}={string_value} to float")
+                continue
+            entry = Entry(idx, start_time, end_time, float(float_value))
+            entries.append(entry)
+
+        with open(csv_path, "w") as f:
+            f.write("\n".join([str(entry) for entry in entries]))
+
+    def safe_name(self, name: str) -> str:
+        return name.replace("_", "-")
+
+
+def main():
+
+    # First, load the output json file. It will be required
+    # to determine the structure of the payload as well as
+    # actually containing the data
+    output = {}
+    with open("output.json", "r") as f:
+        output = json.load(f)
+
+    # In any benchmark post-process script, the metrics generated need to be attributed to a
+    # time-period (AKA benchmark-phase).  The period which is used to report and offical
+    # result for the benchmark is the 'measurement' period.  Other periods thay may exist
+    # could be "warm-up", "prep", etc.
+
+    # There are 3 important phases to the post-processing here...
+
+    # 1. Generate the 'post-process-data.json` file which describes where to find
+    #   our processed data and includes some metadata
+
+    periods: List[Period] = []
+    phases: List[Phase] = []
+    disambiguate_async = len([phase["mode"] for phase in output["benchmarks"][0]["benchmarks"] if phase["mode"] == "asynchronous"]) > 1
+    async_idx = 0
+    for n, phase in enumerate(output["benchmarks"][0]["benchmarks"]):
+        phase_name = ""
+        if disambiguate_async and phase["mode"] == "asynchronous":
+            phase_name = f"phase-{phase["mode"]}-s{async_idx}"
+            async_idx += 1
+        else:
+            phase_name = f"phase-{phase["mode"]}"
+
+        periods.append(Period(phase_name, [f"metric-data-{n}"]))
+        phases.append(Phase(phase_name, f"metric-data-{n}", phase))
+
+
+    post_process_config = PostProcess(
+        periods[0].name,
+        "request-count",
+        "llm",
+        periods,
+        '2021.04.12',
+    )
+
+    with open("post-process-data.json", "w") as f:
+        f.write(json.dumps(to_dict(post_process_config)))
+
+    for phase in phases:
+        phase.process()
+
+    return 0
+
+
+if __name__ == "__main__":
+    sys.exit(main())

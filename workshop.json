@@ -1,0 +1,36 @@
+{
+    "workshop": {
+        "schema": {
+            "version": "2020.03.02"
+        }
+    },
+    "userenvs": [
+        {
+            "name": "fedora41",
+            "requirements": [
+                "dnf",
+                "pip"
+            ]
+        }
+    ],
+    "requirements": [
+        {
+            "name": "dnf",
+            "type": "distro",
+            "distro_info": {
+                "packages": [
+                    "which"
+                ]
+            }
+        },
+        {
+            "name": "pip",
+            "type": "python3",
+            "python3_info": {
+                "packages": [
+                    "llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git"
+                ]
+            }
+        }
+    ]
+}

@@ -1,0 +1,130 @@
+{
+  "tags": {
+    "topology": "none"
+  },
+  "endpoints": [
+    {
+      "type": "k8s",
+      "controller-ip": "your-controller-ip",
+      "host": "localhost",
+      "user": "root",
+      "userenv": "fedora41",
+      "unique-project": 1,
+      "client": "1",
+      "config": [
+        {
+          "targets": [
+            {
+              "role": "client",
+              "ids": "1"
+            }
+          ],
+          "settings": {
+            "securityContext": {
+              "capabilities": {
+                "add": [
+                  "SYS_NICE",
+                  "IPC_LOCK"
+                ]
+              }
+            },
+            "nodeSelector": {
+              "kubernetes.io/hostname": "<name of node to run guidellm on>"
+            }
+          }
+        }
+      ]
+    }
+  ],
+  "run-params": {
+    "num-samples": 1,
+    "max-sample-failures": 1,
+    "test-order": "r"
+  },
+  "tool-params": [
+    {
+      "tool": "sysstat",
+      "params": [
+        {
+          "arg": "subtools",
+          "val": "mpstat,sar,iostat"
+        },
+        {
+          "arg": "interval",
+          "val": "15"
+        }
+      ]
+    },
+    {
+      "tool": "procstat",
+      "params": [
+        {
+          "arg": "interval",
+          "val": "15"
+        }
+      ]
+    }
+  ],
+  "benchmarks": [
+    {
+      "name": "llm",
+      "ids": "1",
+      "mv-params": {
+        "sets": [
+          {
+            "params": [
+              {
+                "arg": "guidellm_target",
+                "vals": [
+                  "localhost:8000"
+                ]
+              },
+              {
+                "arg": "guidellm_data",
+                "vals": [
+                  "prompt_tokens=128,prompt_tokens_variance=32,generated_tokens=128,generated_tokens_variance=32"
+                ]
+              },
+              {
+                "arg": "guidellm_data_type",
+                "vals": [
+                  "emulated"
+                ]
+              },
+              {
+                "arg": "guidellm_backend",
+                "vals": [
+                  "openapi_http"
+                ]
+              },
+              {
+                "arg": "guidellm_model",
+                "vals": [
+                  "ibm-granit/granite-3.1-2b-instruct"
+                ]
+              },
+              {
+                "arg": "guidellm_rate_type",
+                "vals": [
+                  "sweep"
+                ]
+              },
+              {
+                "arg": "guidellm_max_seconds",
+                "vals": [
+                  "120"
+                ]
+              },
+              {
+                "arg": "guidellm_tokenizer",
+                "vals": [
+                  "ibm-granite/granite-3.1-8b-instruct"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

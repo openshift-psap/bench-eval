@@ -1,0 +1,33 @@
+{
+  "rickshaw-benchmark": {
+    "schema": {
+      "version": "2020.05.18"
+    }
+  },
+  "benchmark": "eval",
+  "controller": {
+    "post-script": "%bench-dir%/eval-post-process"
+  },
+  "client": {
+    "files-from-controller": [
+      {
+        "src": "%bench-dir%/random-but-same",
+        "dest": "/tmp/"
+      },
+      {
+        "src": "%bench-dir%/eval-get-runtime",
+        "dest": "/usr/bin/"
+      },
+      {
+        "src": "%bench-dir%/eval-base",
+        "dest": "/usr/bin/"
+      },
+      {
+        "src": "%bench-dir%/eval-client",
+        "dest": "/usr/bin/"
+      }
+    ],
+    "start": "eval-client",
+    "runtime": "eval-get-runtime"
+  }
+}
