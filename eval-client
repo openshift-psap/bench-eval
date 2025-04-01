@@ -52,7 +52,6 @@ MaxRequests: TypeAlias = Union[int, Literal["dataset"]]
 
 @dataclass
 class Params:
-    eval_download_tasks: str
     eval_run_endpoint: str
     eval_run_model: str
     eval_run_tasks: str
@@ -64,6 +63,7 @@ class Params:
     eval_run_loglevel: LogLevel = LogLevel.ERROR
     eval_download_datasets: str = "./datasets"
     eval_download_force_download: bool = False
+    eval_download_tasks: Optional[str] = None
 
 def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err) -> CmdResult:
     ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else subprocess.PIPE), stderr=(subprocess.DEVNULL if ignore_output else subprocess.PIPE))
@@ -96,6 +96,8 @@ def main():
         parser.add_argument(f"--{field.name}", type=field.type, default=field.default if field.default is not MISSING else None, required=not field_is_optional)
 
     args = parser.parse_args()
+    if args.eval_download_tasks is None:
+        args.eval_download_tasks = args.eval_run_tasks
     vargs = vars(args)
 
     params: Params = Params(*[vargs[field.name] for field in fields(Params)])
@@ -108,6 +110,9 @@ def main():
         return 1
     if params.eval_run_datasets != "./datasets":
         print("Do not change name of the run datasets dir, this is not supported")
+        return 1
+    if params.eval_run_tasks != params.eval_download_tasks:
+        print("Do not change the list of tasks to download (or set it to the exact list of tasks to be run")
         return 1
 
     # Convert the Param fields to CLI calls

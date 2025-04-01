@@ -4,62 +4,50 @@
         "generic_string": {
             "description": "all types of strings",
             "args": [
-                "guidellm_target",
-                "guidellm_data",
-                "guidellm_model",
-                "guidellm_tokenizer"
+                "eval_run_endpoint",
+                "eval_run_model",
+                "eval_run_catalog_path",
+                "eval_run_tasks_path",
+                "eval_run_datasets",
+                "eval_download_datasets"
             ],
             "vals": ".+"
         },
         "integer_ge_zero": {
             "description": "a whole number >= 0",
             "args": [
-                "guidellm_max_seconds",
-                "guidellm_max_requests"
+                "eval_run_batch_size"
             ],
             "vals": "[0-9]+"
         },
         "boolean": {
             "description": "True or False",
             "args": [
-                "guidellm_enable_continuous_refresh"
+                "eval_download_force_download"
             ],
             "vals": "True|true|False|false"
         },
-        "data_type": {
-            "description": "Ensure the data type is one of the valid options in guidellm.",
+        "task_list": {
+            "description": "A list of identifiers",
             "args": [
-                "guidellm_data_type"
+                "eval_run_tasks",
+                "eval_download_tasks"
             ],
-            "vals": "emulated|file|transformers"
+            "vals": "([a-zA-Z_]([a-zA-Z0-9_-]*),)*([a-zA-Z_]([a-zA-Z0-9_-]*))"
         },
-        "rate_type": {
-            "description": "Ensure the rate type is one of the valid options in guidellm.",
+        "log_level": {
+            "description": "The valid log levels for the eval script",
             "args": [
-                "guidellm_rate_type"
+                "eval_run_loglevel"
             ],
-            "vals": "sweep|synchronous|throughput|constant|poisson"
-        },
-        "list_of_floats": {
-            "description": "Comma separated list of floating point numbers.",
-            "args": [
-                "guidellm_rate"
-            ],
-            "vals": "(([0-9]+(\\.[0-9])?),)*([0-9]+(\\.[0-9]+)?)"
+            "vals": "q|v"
         },
         "output_path": {
             "description": "The output path is provided as a parameter for completeness, but cannot be changed. This check is present in a few layers.",
             "args": [
-                "guidellm_output_path"
+                "eval_run_output"
             ],
             "vals": "output.json"
-        },
-        "valid_backends": {
-            "description": "Ensure the backend is one of the valid options.",
-            "args": [
-                "guidellm_backend"
-            ],
-            "vals": "openai_http"
         }
     }
 }
