@@ -67,58 +67,28 @@
   ],
   "benchmarks": [
     {
-      "name": "llm",
+      "name": "eval",
       "ids": "1",
       "mv-params": {
         "sets": [
           {
             "params": [
               {
-                "arg": "guidellm_target",
+                "arg": "eval_run_endpoint",
                 "vals": [
-                  "localhost:8000"
+                  "localhost"
                 ]
               },
               {
-                "arg": "guidellm_data",
+                "arg": "eval_run_model",
                 "vals": [
-                  "prompt_tokens=128,prompt_tokens_variance=32,generated_tokens=128,generated_tokens_variance=32"
+                  "ibm-granite/granite-3.1-8b-base"
                 ]
               },
               {
-                "arg": "guidellm_data_type",
+                "arg": "eval_run_tasks",
                 "vals": [
-                  "emulated"
-                ]
-              },
-              {
-                "arg": "guidellm_backend",
-                "vals": [
-                  "openapi_http"
-                ]
-              },
-              {
-                "arg": "guidellm_model",
-                "vals": [
-                  "ibm-granit/granite-3.1-2b-instruct"
-                ]
-              },
-              {
-                "arg": "guidellm_rate_type",
-                "vals": [
-                  "sweep"
-                ]
-              },
-              {
-                "arg": "guidellm_max_seconds",
-                "vals": [
-                  "120"
-                ]
-              },
-              {
-                "arg": "guidellm_tokenizer",
-                "vals": [
-                  "ibm-granite/granite-3.1-8b-instruct"
+                  "leaderboard"
                 ]
               }
             ]
