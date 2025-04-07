@@ -9,7 +9,8 @@
             "name": "fedora41",
             "requirements": [
                 "dnf",
-                "pip"
+                "pip",
+                "datasets"
             ]
         }
     ],
@@ -29,6 +30,15 @@
             "python3_info": {
                 "packages": [
                     "llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git"
+                ]
+            }
+        },
+        {
+            "name": "datasets",
+            "type": "manual",
+            "manual_info": {
+                "commands": [
+                    "if [ -z ${HF_KEY+x} ]; then llm-eval-test download --tasks=arc,gsm8k,hellaswag,leaderboard,mmlu,mmlu_pro,truthfulqa,winogrande -f /root/datasets/"
                 ]
             }
         }
