@@ -38,7 +38,7 @@
             "type": "manual",
             "manual_info": {
                 "commands": [
-                    "if [ -z ${HF_KEY+x} ]; then llm-eval-test download --tasks=arc,gsm8k,hellaswag,leaderboard,mmlu,mmlu_pro,truthfulqa,winogrande -f /root/datasets/"
+                    "if [ -z ${HF_KEY+x} ]; then llm-eval-test download --tasks=arc,gsm8k,hellaswag,leaderboard,mmlu,mmlu_pro,truthfulqa,winogrande -f /root/datasets/; fi"
                 ]
             }
         }

@@ -19,11 +19,6 @@
             ],
             "vals": "[0-9]+"
         },
-        "boolean": {
-            "description": "True or False",
-            "args": [],
-            "vals": "True|true|False|false"
-        },
         "task_list": {
             "description": "A list of identifiers",
             "args": [
