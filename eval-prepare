@@ -1,0 +1,65 @@
+#!/bin/python3
+
+import sys
+
+# Do this immediately to log as much of the execution as possible
+fp_out = open("prepare_stdout.txt", "w")
+fp_err = open("prepare_stderr.txt", "w")
+sys.stdout = fp_out
+sys.stderr = fp_err
+
+
+import argparse
+import subprocess
+from typing import Optional
+from dataclasses import dataclass
+
+DEPENDENCIES = ["huggingface-cli"]
+
+@dataclass
+class CmdResult:
+    rc: int
+    stdout: Optional[str]
+    stderr: Optional[str]
+
+def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err) -> CmdResult:
+    ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else subprocess.PIPE), stderr=(subprocess.DEVNULL if ignore_output else subprocess.PIPE))
+    result = CmdResult(
+        ran.returncode,
+        None if ignore_output else ran.stdout.decode("utf-8"),
+        None if ignore_output else ran.stderr.decode("utf-8"),
+    )
+    if not ignore_output:
+        out_file.write(str(result.stdout))
+        err_file.write(str(result.stderr))
+    return result
+
+def main():
+
+    # Ensure we have dependencies
+    for name in DEPENDENCIES:
+        ret = run(f"which {name}")
+        if ret.rc != 0:
+            print(f"Missing dependency: {name}")
+            print(f"\t{ret.stderr}")
+            return 1
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--eval_run_model", type=str)
+    parser.add_argument("--eval_run_tokenizer", type=str)
+    args = parser.parse_args()
+
+    if args.eval_run_model is None or args.eval_run_tokenizer is None:
+        print("No model name given")
+        return 1
+
+    run("export HF_TOKEN=$(cat /root/hf_token)")
+    #run(f"huggingface-cli download {args.eval_run_model}")
+    run(f"huggingface-cli download {args.eval_run_tokenizer}")
+    run("unset HF_TOKEN", ignore_output=True)
+    run("rm -f /root/hf_token")
+
+    return 0
+
+if __name__ == "__main__":
+    sys.exit(main())

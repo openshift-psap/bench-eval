@@ -10,6 +10,7 @@
             "requirements": [
                 "dnf",
                 "pip",
+                "hf_key",
                 "datasets"
             ]
         }
@@ -29,7 +30,20 @@
             "type": "python3",
             "python3_info": {
                 "packages": [
+                    "huggingface_hub[cli]",
                     "llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git"
+                ]
+            }
+        },
+        {
+            "name": "hf_key",
+            "type": "files",
+            "files_info": {
+                "files": [
+                    {
+                        "src": "/root/hf_token",
+                        "dst": "/root/hf_token"
+                    }
                 ]
             }
         },
@@ -38,7 +52,8 @@
             "type": "manual",
             "manual_info": {
                 "commands": [
-                    "if [ -z ${HF_KEY+x} ]; then llm-eval-test download --tasks=arc,gsm8k,hellaswag,leaderboard,mmlu,mmlu_pro,truthfulqa,winogrande -f /root/datasets/; fi"
+                    "mkdir -p /root/datasets/ && HF_TOKEN=$(cat /root/hf_token) llm-eval-test download --tasks=$(llm-eval-test list -q | awk 'FNR==1{print $0} FNR==1,/Task/{next}1' | awk -F'|' 'NR > 2 && NF { gsub(/ /, \"\", $2); print $2 }' | paste -sd \",\" -) -d /root/datasets/ -f",
+                    "rm -f /root/hf_token"
                 ]
             }
         }

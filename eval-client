@@ -54,6 +54,7 @@ MaxRequests: TypeAlias = Union[int, Literal["dataset"]]
 class Params:
     eval_run_endpoint: str
     eval_run_model: str
+    eval_run_tokenizer: str
     eval_run_tasks: str
     eval_run_batch_size: Optional[int]
     eval_run_catalog_path: Optional[str]
@@ -83,8 +84,6 @@ def main():
             print(f"Missing dependency: {name}")
             print(f"\t{ret.stderr}")
             return 1
-
-    run("mkdir -p ./datasets")
 
     parser = argparse.ArgumentParser()
 
