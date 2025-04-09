@@ -21,7 +21,8 @@
             "type": "distro",
             "distro_info": {
                 "packages": [
-                    "which"
+                    "which",
+                    "cmake"
                 ]
             }
         },
@@ -31,7 +32,7 @@
             "python3_info": {
                 "packages": [
                     "huggingface_hub[cli]",
-                    "llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git"
+                    "'llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git'"
                 ]
             }
         },
