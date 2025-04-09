@@ -6,6 +6,7 @@
             "args": [
                 "eval_run_endpoint",
                 "eval_run_model",
+                "eval_run_tokenizer",
                 "eval_run_catalog_path",
                 "eval_run_tasks_path",
                 "eval_run_datasets"

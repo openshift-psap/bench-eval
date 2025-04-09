@@ -86,6 +86,12 @@
                 ]
               },
               {
+                "arg": "eval_run_tokenizer",
+                "vals": [
+                  "ibm-granite/granite-3.1-2b-base"
+                ]
+              },
+              {
                 "arg": "eval_run_tasks",
                 "vals": [
                   "leaderboard"
