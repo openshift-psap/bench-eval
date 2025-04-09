@@ -15,7 +15,7 @@ from dataclasses import asdict, dataclass, fields, MISSING
 from enum import Enum
 import json
 
-DEPENDENCIES = ["llm-eval-test"]
+DEPENDENCIES = ["llm-eval-test", "huggingface-cli"]
 
 def is_optional(field_t):
     return get_origin(field_t) is Optional or (get_origin(field_t) is Union and type(None) in get_args(field_t))
@@ -102,6 +102,10 @@ def main():
     if params.eval_run_datasets != "/root/datasets":
         print("Do not change name of the run datasets dir, this is not supported")
         return 1
+
+    # Download tokenizer if you don't have it
+    run(f"HF_TOKEN=$(cat /root/hf_token) huggingface-cli download {args.eval_run_tokenizer}")
+    run("rm -f /root/hf_token")
 
     # Convert the Param fields to CLI calls
 

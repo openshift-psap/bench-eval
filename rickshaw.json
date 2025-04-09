@@ -6,7 +6,6 @@
   },
   "benchmark": "eval",
   "controller": {
-    "pre-script": "%bench-dir%/eval-prepare",
     "post-script": "%bench-dir%/eval-post-process"
   },
   "client": {
