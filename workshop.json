@@ -22,7 +22,8 @@
             "distro_info": {
                 "packages": [
                     "which",
-                    "cmake"
+                    "cmake",
+                    "curl"
                 ]
             }
         },

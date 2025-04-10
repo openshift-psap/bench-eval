@@ -26,21 +26,6 @@ class CmdResult:
     stdout: Optional[str]
     stderr: Optional[str]
 
-class DataType(Enum):
-    EMULATED = "emulated"
-    FILE = "file"
-    TRANSFORMERS = "transformers"
-
-    def __str__(self):
-        return self.value
-
-
-class BackendEngine(Enum):
-    OPENAI_HTTP = "openai_http"
-
-    def __str__(self):
-        return self.value
-
 class LogLevel(Enum):
     ERROR = "q"
     DEBUG = "v"
@@ -101,6 +86,12 @@ def main():
         return 1
     if params.eval_run_datasets != "/root/datasets":
         print("Do not change name of the run datasets dir, this is not supported")
+        return 1
+
+    # Ensure we can curl the endpoint
+    ret = run(f"curl {args.eval_run_endpoint}")
+    if ret.rc != 0:
+        print("Couldn't access endpoint, quitting early")
         return 1
 
     # Download tokenizer if you don't have it
