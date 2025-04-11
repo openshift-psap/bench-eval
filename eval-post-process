@@ -115,7 +115,35 @@ class Entry:
 
 def main():
 
-    # Do nothing :)
+    # Just save a dummy metric that is the number of result keys in the output
+    csv_path = "metric-data-0.csv"
+    json_path = "metric-data-0.json"
+    result_count = 0
+    output = {}
+    with open("output.json", "r") as f:
+        output = json.load(f)
+        if "results" in output:
+            result_count = len(output["results"])
+
+    metrics = [Metric(0, Desc(MetricClass.COUNT, "eval", "results-count"), {})]
+    with open(json_path, "w") as f:
+        f.write(json.dumps([to_dict(metric) for metric in metrics]))
+
+    entries = [Entry(0, 0, 0, float(result_count))]
+    with open(csv_path, "w") as f:
+        f.write("\n".join([str(entry) for entry in entries]))
+
+    periods: List[Period] = [Period("measurement", ["metric-data-0"])]
+    post_process_config = PostProcess(
+        "measurement",
+        "result-count",
+        "eval",
+        periods,
+        "2021.04.12",
+    )
+
+    with open("post-process-data.json", "w") as f:
+        f.write(json.dumps(to_dict(post_process_config)))
 
     return 0
 
