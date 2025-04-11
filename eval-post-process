@@ -136,7 +136,7 @@ def main():
     periods: List[Period] = [Period("measurement", ["metric-data-0"])]
     post_process_config = PostProcess(
         "measurement",
-        "result-count",
+        "results-count",
         "eval",
         periods,
         "2021.04.12",
