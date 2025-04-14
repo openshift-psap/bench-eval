@@ -32,7 +32,7 @@
             "type": "python3",
             "python3_info": {
                 "packages": [
-                    "huggingface_hub[cli]",
+                    "transformers",
                     "'llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git'"
                 ]
             }

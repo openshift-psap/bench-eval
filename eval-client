@@ -10,10 +10,11 @@ sys.stderr = fp_err
 
 import argparse
 import subprocess
-from typing import List, Literal, Optional, TypeAlias, Union, get_origin, get_args
+from typing import Literal, Optional, TypeAlias, Union, get_origin, get_args
 from dataclasses import asdict, dataclass, fields, MISSING
 from enum import Enum
 import json
+from transformers import AutoTokenizer
 
 DEPENDENCIES = ["llm-eval-test", "huggingface-cli"]
 
@@ -95,7 +96,10 @@ def main():
         return 1
 
     # Download tokenizer if you don't have it
-    run(f"HF_TOKEN=$(cat /root/hf_token) huggingface-cli download {args.eval_run_tokenizer}")
+    run(f"export HF_TOKEN=$(cat /root/hf_token)")
+    # Just used to download the tokenizer files
+    AutoTokenizer.from_pretrained(args.eval_run_tokenizer)
+    run(f"unset HF_TOKEN")
     run("rm -f /root/hf_token")
 
     # Convert the Param fields to CLI calls
