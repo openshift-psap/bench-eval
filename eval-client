@@ -122,7 +122,7 @@ def main():
             if type(value) is bool:
                 if value:
                     run_cli_args.append(f"--{field.replace("eval_run_", "").replace("_", "-")}")
-            if "loglevel" in field:
+            elif "loglevel" in field:
                 run_cli_args.append(f"-{value}")
             else:
                 run_cli_args.append(f"--{field.replace("eval_run_", "").replace("_", "-")}={value}")
