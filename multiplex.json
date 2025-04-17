@@ -16,9 +16,17 @@
         "integer_ge_zero": {
             "description": "a whole number >= 0",
             "args": [
-                "eval_run_batch_size"
+                "eval_run_batch",
+                "eval_run_retry"
             ],
             "vals": "[0-9]+"
+        },
+        "boolean": {
+            "description": "true or false",
+            "args": [
+                "eval_run_chat_template"
+            ],
+            "vals": "true|True|false|False"
         },
         "task_list": {
             "description": "A list of identifiers",
@@ -33,6 +41,13 @@
                 "eval_run_loglevel"
             ],
             "vals": "q|v"
+        },
+        "output_format": {
+            "description": "The format of the output file",
+            "args": [
+                "eval_run_format"
+            ],
+            "vals": "full|summary"
         },
         "output_path": {
             "description": "The output path is provided as a parameter for completeness, but cannot be changed. This check is present in a few layers.",

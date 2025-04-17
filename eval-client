@@ -34,6 +34,14 @@ class LogLevel(Enum):
     def __str__(self):
         return self.value
 
+class OutputFormat(Enum):
+    FULL = "full"
+    SUMMARY = "summary"
+
+    def __str__(self):
+        return self.value
+
+
 MaxRequests: TypeAlias = Union[int, Literal["dataset"]]
 
 @dataclass
@@ -42,12 +50,15 @@ class Params:
     eval_run_model: str
     eval_run_tokenizer: str
     eval_run_tasks: str
-    eval_run_batch_size: Optional[int]
+    eval_run_batch: Optional[int]
+    eval_run_retry: Optional[int]
     eval_run_catalog_path: Optional[str]
     eval_run_tasks_path: Optional[str]
     eval_run_datasets: str = "/root/datasets"
     eval_run_output: str = "output.json"
     eval_run_loglevel: LogLevel = LogLevel.ERROR
+    eval_run_format: OutputFormat = OutputFormat.FULL
+    eval_run_chat_template: bool = False
 
 def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err) -> CmdResult:
     ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else subprocess.PIPE), stderr=(subprocess.DEVNULL if ignore_output else subprocess.PIPE))
