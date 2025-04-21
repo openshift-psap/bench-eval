@@ -33,7 +33,7 @@
             "python3_info": {
                 "packages": [
                     "transformers",
-                    "'llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git'"
+                    "'llm-eval-test[leaderboard] @ git+https://github.com/openshift-psap/llm-eval-test.git'@v0.3.0"
                 ]
             }
         },
