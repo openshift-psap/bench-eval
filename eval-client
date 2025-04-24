@@ -48,10 +48,10 @@ class Params:
     eval_run_model: str
     eval_run_tokenizer: str
     eval_run_tasks: str
-    eval_run_batch: Optional[int]
-    eval_run_retry: Optional[int]
-    eval_run_catalog_path: Optional[str]
-    eval_run_tasks_path: Optional[str]
+    eval_run_batch: int = 1
+    eval_run_retry: int = None
+    eval_run_catalog_path: str = None
+    eval_run_tasks_path: str = None
     eval_run_datasets: str = "/root/datasets"
     eval_run_output: str = "output.json"
     eval_run_loglevel: LogLevel = LogLevel.ERROR
@@ -78,8 +78,7 @@ def main():
     parser = argparse.ArgumentParser()
 
     for field in fields(Params):
-        field_is_optional = is_optional(field.type) or field.default is not MISSING
-        parser.add_argument(f"--{field.name}", type=field.type, default=field.default if field.default is not MISSING else None, required=not field_is_optional)
+        parser.add_argument(f"--{field.name}", type=field.type, default=field.default if field.default is not MISSING else None, required=bool(field.default is MISSING))
 
     args = parser.parse_args()
     vargs = vars(args)
