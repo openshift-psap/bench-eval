@@ -24,8 +24,6 @@ def is_optional(field_t):
 @dataclass
 class CmdResult:
     rc: int
-    stdout: Optional[str]
-    stderr: Optional[str]
 
 class LogLevel(Enum):
     ERROR = "q"
@@ -61,15 +59,10 @@ class Params:
     eval_run_chat_template: bool = False
 
 def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err) -> CmdResult:
-    ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else subprocess.PIPE), stderr=(subprocess.DEVNULL if ignore_output else subprocess.PIPE))
+    ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else out_file), stderr=(subprocess.DEVNULL if ignore_output else err_file))
     result = CmdResult(
-        ran.returncode,
-        None if ignore_output else ran.stdout.decode("utf-8"),
-        None if ignore_output else ran.stderr.decode("utf-8"),
+        ran.returncode
     )
-    if not ignore_output:
-        out_file.write(str(result.stdout))
-        err_file.write(str(result.stderr))
     return result
 
 def main():
@@ -79,7 +72,7 @@ def main():
         ret = run(f"which {name}")
         if ret.rc != 0:
             print(f"Missing dependency: {name}")
-            print(f"\t{ret.stderr}")
+            print(f"\t{name}")
             return 1
 
     parser = argparse.ArgumentParser()
