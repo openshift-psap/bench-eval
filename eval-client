@@ -14,6 +14,7 @@ from typing import Literal, Optional, TypeAlias, Union, get_origin, get_args
 from dataclasses import asdict, dataclass, fields, MISSING
 from enum import Enum
 import json
+import os
 from transformers import AutoTokenizer
 
 DEPENDENCIES = ["llm-eval-test", "huggingface-cli"]
@@ -58,8 +59,8 @@ class Params:
     eval_run_format: OutputFormat = OutputFormat.FULL
     eval_run_chat_template: bool = False
 
-def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err) -> CmdResult:
-    ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else out_file), stderr=(subprocess.DEVNULL if ignore_output else err_file))
+def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err, env={}) -> CmdResult:
+    ran = subprocess.run(cmd, shell=True, stdout=(subprocess.DEVNULL if ignore_output else out_file), stderr=(subprocess.DEVNULL if ignore_output else err_file), env={**os.environ, **env})
     result = CmdResult(
         ran.returncode
     )
@@ -99,10 +100,13 @@ def main():
         return 1
 
     # Download tokenizer if you don't have it
-    run(f"export HF_TOKEN=$(cat /root/hf_token)")
+    hf_token = "token"
+    with open("/root/hf_token", "r") as f:
+        hf_token = f.read()
+    os.environ["hf_token"] = hf_token
     # Just used to download the tokenizer files
     AutoTokenizer.from_pretrained(args.eval_run_tokenizer)
-    run(f"unset HF_TOKEN")
+    del os.environ["hf_token"]
     run("rm -f /root/hf_token")
 
     # Convert the Param fields to CLI calls
