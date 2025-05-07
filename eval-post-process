@@ -115,6 +115,10 @@ class Entry:
 
 def main():
 
+    metadata = {}
+    with open("metadata.json", "r") as f:
+        metadata = json.load(f)
+
     # Just save a dummy metric that is the number of result keys in the output
     csv_path = "metric-data-0.csv"
     json_path = "metric-data-0.json"
@@ -129,7 +133,10 @@ def main():
     with open(json_path, "w") as f:
         f.write(json.dumps([to_dict(metric) for metric in metrics]))
 
-    entries = [Entry(0, 0, 0, float(result_count))]
+    begin = int(metadata.get("begin", 0))
+    end = int(metadata.get("end", 0))
+
+    entries = [Entry(0, begin, end, float(result_count))]
     with open(csv_path, "w") as f:
         f.write("\n".join([str(entry) for entry in entries]))
 

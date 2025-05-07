@@ -14,6 +14,7 @@ from typing import Literal, Optional, TypeAlias, Union, get_origin, get_args
 from dataclasses import asdict, dataclass, fields, MISSING
 from enum import Enum
 import json
+import time
 import os
 from transformers import AutoTokenizer
 
@@ -67,6 +68,8 @@ def run(cmd: str, ignore_output=False, out_file=fp_out, err_file=fp_err, env={})
     return result
 
 def main():
+
+    metadata = {}
 
     # Ensure we have dependencies
     for name in DEPENDENCIES:
@@ -124,12 +127,17 @@ def main():
                 run_cli_args.append(f"--{field.replace("eval_run_", "").replace("_", "-")}={value}")
 
     run_cmd = "llm-eval-test run " + " ".join(run_cli_args)
+    metadata["begin"] = int(time.time())
     print(f"Running: {run_cmd}")
     run(run_cmd)
+    metadata["end"] = int(time.time())
 
     # Save all settings
     with open("params.json", "w") as f:
-        f.write(json.dumps(vargs, indent=4, default=lambda x: x.value))
+        json.dump(vargs, f, indent=4, default=lambda x: x.value)
+
+    with open("metadata.json", "w") as f:
+        json.dump(metadata, f, indent=4)
 
     return 0
 
