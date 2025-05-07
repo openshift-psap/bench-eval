@@ -29,6 +29,10 @@
       {
         "src": "/root/hf_token",
         "dest": "/root/hf_token"
+      },
+      {
+        "src": "%bench-dir%/datasets",
+        "dest": "/root/datasets"
       }
     ],
     "start": "eval-client",

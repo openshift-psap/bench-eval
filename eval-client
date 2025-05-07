@@ -103,10 +103,9 @@ def main():
         return 1
 
     # Download tokenizer if you don't have it
-    hf_token = "token"
     with open("/root/hf_token", "r") as f:
         hf_token = f.read()
-    os.environ["hf_token"] = hf_token
+    os.environ["HF_TOKEN"] = hf_token.strip()
     # Just used to download the tokenizer files
     AutoTokenizer.from_pretrained(args.eval_run_tokenizer)
     del os.environ["hf_token"]
@@ -126,7 +125,7 @@ def main():
             else:
                 run_cli_args.append(f"--{field.replace("eval_run_", "").replace("_", "-")}={value}")
 
-    run_cmd = "llm-eval-test run " + " ".join(run_cli_args)
+    run_cmd = "llm-eval-test run --no-offline " + " ".join(run_cli_args)
     metadata["begin"] = int(time.time())
     print(f"Running: {run_cmd}")
     run(run_cmd)

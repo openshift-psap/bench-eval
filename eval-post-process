@@ -133,8 +133,9 @@ def main():
     with open(json_path, "w") as f:
         f.write(json.dumps([to_dict(metric) for metric in metrics]))
 
-    begin = int(metadata.get("begin", 0))
-    end = int(metadata.get("end", 0))
+    # We need integer millis
+    begin = int(metadata.get("begin", 0)) * 1000
+    end = int(metadata.get("end", 0)) * 1000
 
     entries = [Entry(0, begin, end, float(result_count))]
     with open(csv_path, "w") as f:
