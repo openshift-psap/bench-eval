@@ -108,8 +108,6 @@ def main():
     os.environ["HF_TOKEN"] = hf_token.strip()
     # Just used to download the tokenizer files
     AutoTokenizer.from_pretrained(args.eval_run_tokenizer)
-    del os.environ["hf_token"]
-    run("rm -f /root/hf_token")
 
     # Convert the Param fields to CLI calls
 
@@ -130,6 +128,9 @@ def main():
     print(f"Running: {run_cmd}")
     run(run_cmd)
     metadata["end"] = int(time.time())
+
+    del os.environ["hf_token"]
+    run("rm -f /root/hf_token")
 
     # Save all settings
     with open("params.json", "w") as f:
